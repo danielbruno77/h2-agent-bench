@@ -13,7 +13,8 @@ command -v uv >/dev/null 2>&1 || exit 0
 
 out=$(timeout 300 uv run pytest -q -x -m "not openfoam" 2>&1)
 status=$?
-if [ $status -ne 0 ]; then
+# 5 = pytest collected no tests (e.g. before tests/ exists); not a failure.
+if [ $status -ne 0 ] && [ $status -ne 5 ]; then
   echo "Fast tests are failing; fix before stopping. Tail:" >&2
   echo "$out" | tail -n 25 >&2
   exit 2

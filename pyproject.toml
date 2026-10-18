@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-h2bench = "h2bench:main"
+h2bench = "h2bench.cli:app"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]

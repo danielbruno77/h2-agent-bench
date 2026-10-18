@@ -1,0 +1,14 @@
+id: A1
+family: A
+title: Baseline mixing KPI
+prompt: >
+  The case in ./case is a square duct with a side injection of hydrogen into
+  methane. Mesh it, run it to convergence, and report the coefficient of
+  variation of the H2 fraction on the plane x = 10D. Submit the value with
+  the case directory.
+case_template: tasks/A1-baseline/case
+allowed_tools: [mesh, check_mesh, run_solver, read_monitor, extract_kpi, read_file, write_file, submit]
+verification:
+  kpi: cov_h2_plane10D
+  tol_rel: 0.05          # placeholder until Day 2's mesh study
+  min_cells: 15000

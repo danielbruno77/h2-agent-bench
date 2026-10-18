@@ -37,3 +37,9 @@ minutes, all A tasks stay tier 1 and B uses tier 2 at its own coarse resolution.
 
 `tests/fixtures/duct2d/`: 2D slice through the port, 1000 cells, 200 iterations,
 ExecutionTime 0.32 s on one core, CoV(H2) 0.6711 at iteration 200.
+
+### End of day
+
+- Worked: A1 tier-1 case meshes and runs 1000 its in 10 s on 8 cores (CoV 0.511); tier-2 FOAM Iberia setup on the same mesh 37 s for 3500 its, so tier 2 takes A4-A6 and B; duct2d fixture 0.3 s.
+- Didn't: constant `D` in scalarTransport silently dropped turbulent diffusion (CoV 0.947, caught and removed); `nu` is still an unsourced placeholder; README has no CI badge yet.
+- Tomorrow: `pytest -m openfoam` passing end to end on duct2d through the tools layer (run_of docker branch must `cd` into the case, since the image's `bash -l` ignores `-w`).

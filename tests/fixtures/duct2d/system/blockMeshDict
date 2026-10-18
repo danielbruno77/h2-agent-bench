@@ -1,0 +1,101 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// CI-sized 2D version of tasks/A1-baseline: the x-y slice of the duct through the
+// port, one cell thick in z (empty). The port becomes a slot of width wPort on the
+// y = 0 wall. Thickness is D so the canonical plane point (1.2 0.05 0.05) lies inside.
+// Three blocks along x: upstream, port span, downstream.
+
+scale   1;
+
+L       2;
+D       0.1;
+xPort   0.2;
+wPort   0.02;
+
+nx      100;    // ~1000 cells for a <30 s single-core run
+ny      10;
+
+x1      #eval{ $xPort - 0.5*$wPort };
+x2      #eval{ $xPort + 0.5*$wPort };
+
+nx0     #eval{ round($nx*$x1/$L) };
+nx1     #eval{ max(1, round($nx*$wPort/$L)) };
+nx2     #eval{ $nx - $nx0 - $nx1 };
+
+// Vertex index = i + 4*j + 8*k for x-station i, y-station j, z-station k.
+vertices
+(
+    (  0  0  0)  ($x1  0  0)  ($x2  0  0)  ( $L  0  0)   // 0-3
+    (  0 $D  0)  ($x1 $D  0)  ($x2 $D  0)  ( $L $D  0)   // 4-7
+    (  0  0 $D)  ($x1  0 $D)  ($x2  0 $D)  ( $L  0 $D)   // 8-11
+    (  0 $D $D)  ($x1 $D $D)  ($x2 $D $D)  ( $L $D $D)   // 12-15
+);
+
+blocks
+(
+    hex (0 1 5 4  8  9 13 12) ($nx0 $ny 1) simpleGrading (1 1 1)
+    hex (1 2 6 5  9 10 14 13) ($nx1 $ny 1) simpleGrading (1 1 1)
+    hex (2 3 7 6 10 11 15 14) ($nx2 $ny 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 8 12 4));
+    }
+
+    port
+    {
+        type patch;
+        faces ((1 2 10 9));
+    }
+
+    outlet
+    {
+        type patch;
+        faces ((3 7 15 11));
+    }
+
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 4 5 1) (1 5 6 2) (2 6 7 3)
+            (8 9 13 12) (9 10 14 13) (10 11 15 14)
+        );
+    }
+);
+
+defaultPatch
+{
+    name    walls;
+    type    wall;
+}
+
+mergePatchPairs
+(
+);
+
+
+// ************************************************************************* //

@@ -1,0 +1,86 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   1000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+// Verifier-owned: the agent may not change how the KPI is measured.
+functions
+{
+    H2
+    {
+        type        scalarTransport;
+        libs        (solverFunctionObjects);
+        field       H2;
+        alphaD      1;
+        alphaDt     1;
+    }
+    planeCoV
+    {
+        type        surfaceFieldValue;
+        libs        (fieldFunctionObjects);
+        regionType  sampledSurface;
+        name        plane10D;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (1.2 0.05 0.05); normal (1 0 0); }
+            interpolate true;
+        }
+        operation   CoV;
+        fields      (H2);
+        writeFields false;     // mandatory in v2512 (squareBend/system/sampling)
+        writeControl timeStep;
+        writeInterval 10;
+    }
+    solverInfo
+    {
+        type        solverInfo;
+        libs        (utilityFunctionObjects);
+        fields      (U p H2);
+    }
+}
+
+
+// ************************************************************************* //
